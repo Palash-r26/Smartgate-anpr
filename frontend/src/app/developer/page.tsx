@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Github, Linkedin, Mail, Code2 } from "lucide-react";
+import { ArrowLeft, Mail, Code2, Globe, Briefcase } from "lucide-react";
 
 export default function DeveloperPage() {
   return (
@@ -35,10 +35,10 @@ export default function DeveloperPage() {
             
             <div className="flex gap-4">
               <button className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
-                <Github className="w-6 h-6" />
+                <Globe className="w-6 h-6" />
               </button>
               <button className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
-                <Linkedin className="w-6 h-6" />
+                <Briefcase className="w-6 h-6" />
               </button>
               <button className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
                 <Mail className="w-6 h-6" />
