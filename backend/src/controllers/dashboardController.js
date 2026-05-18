@@ -24,7 +24,7 @@ const getLogs = async (req, res) => {
     try {
         const [logs] = await pool.query(`
             SELECT a.log_id, a.plate_number, a.timestamp, a.status, a.confidence, 
-                   IFNULL(v.owner_name, 'Unknown') as owner_name,
+                   IFNULL(v.owner_name, 'Visitor') as owner_name,
                    IFNULL(v.designation, 'Visitor') as designation
             FROM access_logs a
             LEFT JOIN vehicles v ON a.plate_number = v.plate_number

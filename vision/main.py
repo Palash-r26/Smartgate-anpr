@@ -17,7 +17,7 @@ COOLDOWN_SECONDS = 4
 
 # Initialize PaddleOCR
 print("⏳ Loading OCR model...")
-ocr = PaddleOCR(use_textline_orientation=True, lang='en')
+ocr = PaddleOCR(use_angle_cls=True, lang='en')
 print("✅ OCR Ready!")
 
 # Open webcam

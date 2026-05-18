@@ -17,12 +17,11 @@ const handlePlateScan = async (req, res) => {
             [plate]
         );
 
-        let status = 'DENIED';
-        let owner = 'Unknown';
-        let designation = 'None';
+        let status = 'ALLOWED';
+        let owner = 'Visitor';
+        let designation = 'Visitor';
 
         if (vehicles.length > 0) {
-            status = 'ALLOWED';
             owner = vehicles[0].owner_name;
             designation = vehicles[0].designation;
         }
