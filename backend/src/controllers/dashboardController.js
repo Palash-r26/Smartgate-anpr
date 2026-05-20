@@ -49,9 +49,14 @@ const getVehicles = async (req, res) => {
 const addVehicle = async (req, res) => {
     try {
         const { plate_number, owner_name, designation } = req.body;
+        
+        const cleanPlate = (plate_number || '').trim().replace(/\s+/g, '');
+        const cleanOwner = (owner_name || '').trim();
+        const cleanDesignation = (designation || '').trim();
+
         await pool.query(
             'INSERT INTO vehicles (plate_number, owner_name, designation) VALUES (?, ?, ?)',
-            [plate_number, owner_name, designation]
+            [cleanPlate, cleanOwner, cleanDesignation]
         );
         res.json({ success: true });
     } catch (err) {

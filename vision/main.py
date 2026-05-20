@@ -37,6 +37,73 @@ def clean_plate(text):
     text = re.sub(r'[^A-Z0-9]', '', text.upper())
     return text
 
+def correct_plate_characters(plate_str):
+    if not plate_str:
+        return ""
+    
+    length = len(plate_str)
+    types = []
+    
+    # Identify expected character types based on Indian format templates
+    if length == 10:
+        types = ['L', 'L', 'D', 'D', 'L', 'L', 'D', 'D', 'D', 'D']
+    elif length == 9:
+        types = ['L', 'L', 'D', 'D', 'L', 'D', 'D', 'D', 'D']
+    elif length == 8:
+        # Check if index 3 is digit or letter to choose template: LLDLDDDD (Delhi old) or LLDDDDDD
+        if length > 3 and plate_str[3] in '0123456789' and plate_str[3] not in ('D', 'Q', 'O'):
+            types = ['L', 'L', 'D', 'D', 'D', 'D', 'D', 'D']
+        else:
+            types = ['L', 'L', 'D', 'L', 'D', 'D', 'D', 'D']
+    else:
+        # Generic fallback for partial plates
+        for i in range(length):
+            if i < 2:
+                types.append('L')
+            elif i >= length - 4:
+                types.append('D')
+            elif i in (2, 3):
+                types.append('D')
+            else:
+                types.append('L')
+                
+    corrected_chars = []
+    corrections_logged = []
+    
+    for i, char in enumerate(plate_str):
+        expected = types[i]
+        corrected_char = char
+        
+        if expected == 'L':
+            if char == '0':
+                # Convert '0' (zero) to letter D, Q, or O
+                if i == 0:
+                    corrected_char = 'O' # State code starts with O (OD)
+                elif i == 1:
+                    corrected_char = 'D' # State code ends with D (OD, DD, LD)
+                else:
+                    corrected_char = 'D' # Default to D in series positions (very common)
+                corrections_logged.append(f"pos {i}: '0'->'{corrected_char}'")
+        elif expected == 'D':
+            if char in ('D', 'Q', 'O'):
+                # Convert letters D, Q, O to digit '0'
+                corrected_char = '0'
+                corrections_logged.append(f"pos {i}: '{char}'->'0'")
+                
+        corrected_chars.append(corrected_char)
+        
+    corrected_plate = "".join(corrected_chars)
+    
+    if corrections_logged:
+        print(f"[ANPR Post-Process] {plate_str} -> {corrected_plate} | {', '.join(corrections_logged)}")
+        
+    return corrected_plate
+
+def validate_plate(plate_str):
+    # Regex for Indian plate format: State(2 letters) District(2 digits) Series(1-2 letters) Unique(4 digits)
+    pattern = r'^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$'
+    return bool(re.match(pattern, plate_str))
+
 def send_to_backend(plate, confidence):
     try:
         payload = {"plate": plate, "confidence": round(confidence, 2)}
@@ -52,6 +119,9 @@ while True:
         print("❌ Failed to read frame")
         break
 
+    # Flip the frame horizontally to un-reflect/mirror it
+    frame = cv2.flip(frame, 1)
+
     # Run OCR
     results = ocr.ocr(frame, cls=True)
 
@@ -62,11 +132,19 @@ while True:
             text = line[1][0]
             confidence = line[1][1]
             cleaned = clean_plate(text)
-
-            # Only process if confidence is high enough and plate looks valid
+            
+            # Post-process and check confidence
             if len(cleaned) >= 4 and confidence >= CONFIDENCE_THRESHOLD:
-                print(f"🔍 Seen: {cleaned} ({confidence:.2f})")
-                plate_buffer.append(cleaned)
+                corrected = correct_plate_characters(cleaned)
+                is_valid = validate_plate(corrected)
+                
+                validity_str = "VALID" if is_valid else "INVALID"
+                print(f"[Seen] {cleaned} -> {corrected} ({confidence:.2f}) [{validity_str}]")
+                
+                if is_valid:
+                    plate_buffer.append(corrected)
+                else:
+                    print(f"[Discarded] Invalid plate format: {corrected}")
 
                 # Multi-frame check
                 if len(plate_buffer) >= FRAME_CHECK_COUNT:

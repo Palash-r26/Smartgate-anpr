@@ -3,11 +3,14 @@ const { getIo } = require('../socket/events');
 
 const handlePlateScan = async (req, res) => {
     try {
-        const { plate, confidence } = req.body;
+        let { plate, confidence } = req.body;
         
         if (!plate || confidence === undefined) {
             return res.status(400).json({ error: 'Missing plate or confidence' });
         }
+
+        // Strip whitespaces, tabs, and carriage returns
+        plate = plate.trim().replace(/\s+/g, '');
 
         console.log(`📡 Received plate scan: ${plate} (Confidence: ${confidence})`);
 
@@ -17,11 +20,12 @@ const handlePlateScan = async (req, res) => {
             [plate]
         );
 
-        let status = 'ALLOWED';
+        let status = 'DENIED';
         let owner = 'Visitor';
         let designation = 'Visitor';
 
         if (vehicles.length > 0) {
+            status = 'ALLOWED';
             owner = vehicles[0].owner_name;
             designation = vehicles[0].designation;
         }

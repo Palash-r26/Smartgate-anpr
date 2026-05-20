@@ -41,16 +41,16 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
   // Dynamically assign bar colors based on AI detection confidence thresholds
   const getConfidenceColor = (conf: number) => {
     const val = conf * 100;
-    if (val > 85) return "bg-[#00ff88]";
-    if (val >= 60) return "bg-yellow-500";
-    return "bg-[#ff3355]";
+    if (val > 85) return "bg-emerald-500";
+    if (val >= 60) return "bg-amber-500";
+    return "bg-rose-500";
   };
 
   const getConfidenceTextClass = (conf: number) => {
     const val = conf * 100;
-    if (val > 85) return "text-[#00ff88]";
-    if (val >= 60) return "text-yellow-500";
-    return "text-[#ff3355]";
+    if (val > 85) return "text-emerald-500";
+    if (val >= 60) return "text-amber-500";
+    return "text-rose-500";
   };
 
   return (
@@ -62,20 +62,20 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className={`w-full bg-[#12121a] rounded-xl p-10 flex flex-col items-center justify-center border border-white/5 shadow-xl relative min-h-[340px] ${cardClass}`}
+            className={`w-full bg-card rounded-3xl p-10 flex flex-col items-center justify-center border shadow-xl relative min-h-[340px] ${cardClass}`}
           >
             {/* Ambient military overlay grid line effects */}
-            <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/5 via-transparent to-transparent pointer-events-none rounded-xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
             
-            <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-6 text-muted-foreground/60">
-              <Eye className="w-10 h-10 animate-pulse text-indigo-400" />
+            <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-secondary border border-border/50 mb-6 text-muted-foreground/60">
+              <Eye className="w-10 h-10 animate-pulse text-indigo-500" />
             </div>
 
             <h3 className="font-mono text-base font-bold tracking-wider text-muted-foreground uppercase flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
               Monitoring Gates
             </h3>
-            <p className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest mt-2">
+            <p className="text-[10px] font-mono text-muted-foreground/45 uppercase tracking-widest mt-2">
               Awaiting License Plate Approach...
             </p>
           </motion.div>
@@ -86,18 +86,18 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className={`w-full bg-[#12121a] rounded-xl border overflow-hidden shadow-2xl relative min-h-[340px] flex flex-col ${cardClass}`}
+            className={`w-full bg-card rounded-3xl border overflow-hidden shadow-2xl relative min-h-[340px] flex flex-col ${cardClass}`}
           >
             {/* Access Header Indicator Banners */}
             {latestScan.status === "ALLOWED" ? (
-              <div className="bg-[#00ff88]/10 border-b border-[#00ff88]/20 px-6 py-4 flex items-center justify-center gap-2 text-base font-mono font-bold text-[#00ff88] tracking-widest uppercase shadow-[0_4px_12px_rgba(0,255,136,0.05)]">
+              <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-4 flex items-center justify-center gap-2 text-base font-mono font-bold text-emerald-500 tracking-widest uppercase shadow-[0_4px_12px_rgba(16,185,129,0.05)]">
                 <ShieldCheck className="w-5 h-5 animate-bounce" />
-                ✅ ACCESS GRANTED
+                ACCESS GRANTED
               </div>
             ) : (
-              <div className="bg-[#ff3355]/10 border-b border-[#ff3355]/20 px-6 py-4 flex items-center justify-center gap-2 text-base font-mono font-bold text-[#ff3355] tracking-widest uppercase shadow-[0_4px_12px_rgba(255,51,85,0.05)]">
+              <div className="bg-rose-500/10 border-b border-rose-500/20 px-6 py-4 flex items-center justify-center gap-2 text-base font-mono font-bold text-rose-500 tracking-widest uppercase shadow-[0_4px_12px_rgba(244,63,94,0.05)]">
                 <ShieldAlert className="w-5 h-5 animate-bounce" />
-                🚨 ACCESS DENIED
+                ACCESS DENIED
               </div>
             )}
 
@@ -107,21 +107,21 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
                 <p className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-widest mb-2">
                   DETECTED PERIMETER LICENSE PLATE
                 </p>
-                <div className="bg-black/50 border border-border/80 rounded-lg px-8 py-3.5 font-mono font-black text-3xl md:text-5xl tracking-widest text-center shadow-inner relative overflow-hidden select-all w-full max-w-md">
+                <div className="bg-secondary border border-border/85 rounded-2xl px-8 py-3.5 font-mono font-black text-3xl md:text-5xl tracking-widest text-center shadow-inner relative overflow-hidden select-all w-full max-w-md">
                   {/* Bolt Details for Military/Industrial look */}
-                  <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 bg-zinc-700 rounded-full border border-zinc-800" />
-                  <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-zinc-700 rounded-full border border-zinc-800" />
-                  <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 bg-zinc-700 rounded-full border border-zinc-800" />
-                  <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 bg-zinc-700 rounded-full border border-zinc-800" />
+                  <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-700 rounded-full border border-zinc-300 dark:border-zinc-800" />
+                  <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-700 rounded-full border border-zinc-300 dark:border-zinc-800" />
+                  <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-700 rounded-full border border-zinc-300 dark:border-zinc-800" />
+                  <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-700 rounded-full border border-zinc-300 dark:border-zinc-800" />
                   
-                  <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                     {latestScan.plate}
                   </span>
                 </div>
               </div>
 
               {/* Grid detail metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono mt-1 bg-black/25 p-5 rounded-lg border border-border/40">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono mt-1 bg-secondary/35 p-5 rounded-2xl border border-border/40">
                 <div className="flex items-start gap-2.5">
                   <User className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
@@ -136,7 +136,7 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
                   <Shield className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
                     <span className="text-muted-foreground/50 uppercase text-[9px] block tracking-wider">Designation</span>
-                    <span className={`font-bold text-sm uppercase ${latestScan.status === "ALLOWED" ? "text-indigo-400" : "text-zinc-500"}`}>
+                    <span className={`font-bold text-sm uppercase ${latestScan.status === "ALLOWED" ? "text-indigo-500" : "text-zinc-500"}`}>
                       {latestScan.status === "ALLOWED" ? latestScan.designation || "Visitor/Contractor" : "UNAUTHORIZED"}
                     </span>
                   </div>
@@ -145,7 +145,7 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
                 <div className="col-span-1 md:col-span-2 border-t border-border/30 pt-4 mt-1 flex flex-col">
                   <div className="flex justify-between items-center text-[9px] uppercase font-bold text-muted-foreground/75">
                     <span className="flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-indigo-400" />
+                      <AlertTriangle className="w-3.5 h-3.5 text-indigo-500" />
                       OCR CONFIDENCE SCORE
                     </span>
                     <span className={`font-mono font-black text-xs ${getConfidenceTextClass(latestScan.confidence)}`}>
@@ -154,7 +154,7 @@ export default function LiveAccessCard({ latestScan }: LiveAccessCardProps) {
                   </div>
                   
                   {/* Dynamic Progress indicator */}
-                  <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden mt-2 border border-border/20">
+                  <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden mt-2 border border-border/20">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${latestScan.confidence * 100}%` }}
