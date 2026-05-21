@@ -32,6 +32,7 @@ async function runMigrations(pool) {
         ['phone', "VARCHAR(20) DEFAULT NULL"],
         ['email', "VARCHAR(120) DEFAULT NULL"],
         ['match_type', "VARCHAR(20) DEFAULT 'none'"],
+        ['verification', "VARCHAR(20) DEFAULT 'VERIFIED'"],
     ];
 
     for (const [name, definition] of logColumns) {

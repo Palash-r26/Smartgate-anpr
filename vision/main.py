@@ -280,10 +280,6 @@ def draw_overlay(display, detection, plate_text=None):
     y = 28
     cv2.putText(display, "SmartGate ANPR", (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     y += 28
-    for key in ("vehicle_type", "vehicle_color", "plate_type"):
-        label = f"{key}: {detection.get(key, '?')}"
-        cv2.putText(display, label, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 220, 255), 1)
-        y += 22
     if plate_text:
         cv2.putText(display, f"plate: {plate_text}", (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
