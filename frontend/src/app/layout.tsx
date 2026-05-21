@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SocketProvider from "@/components/SocketProvider";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +21,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-          <SocketProvider>
-            {children}
-          </SocketProvider>
+          <AuthProvider>
+            <SocketProvider>
+              {children}
+            </SocketProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

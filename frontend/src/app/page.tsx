@@ -1,20 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { 
-  Shield, Lock, ArrowRight, Activity, Terminal, Sun, Moon, 
-  Eye, EyeOff, Cpu, Video, CheckCircle, AlertTriangle, List, LockKeyhole
+  Shield, ArrowRight, Activity, Sun, Moon, 
+  Eye, EyeOff, Cpu, Video, CheckCircle, AlertTriangle, LockKeyhole
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LandingLoginPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { login, user, isLoading: authLoading } = useAuth();
   const [mounted, setMounted] = useState(false);
-  const [role, setRole] = useState<"Security" | "Admin">("Security");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,15 +33,13 @@ export default function LandingLoginPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Autofill credentials when role changes
-    if (role === "Security") {
-      setUsername("sec_operator_01");
-      setPassword("password");
-    } else {
-      setUsername("admin");
-      setPassword("password");
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/dashboard");
     }
-  }, [role]);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,28 +54,14 @@ export default function LandingLoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-
-    setTimeout(() => {
-      const trimmedUser = username.trim().toLowerCase();
-      
-      if (role === "Admin") {
-        if (trimmedUser === "admin" && password === "password") {
-          localStorage.setItem("smartgate_role", "Admin");
-          router.push("/dashboard");
-        } else {
-          setError("AUTHENTICATION FAILED: INVALID ADMIN ACCREDITATION");
-          setIsLoading(false);
-        }
-      } else {
-        if (trimmedUser && password === "password") {
-          localStorage.setItem("smartgate_role", "Security");
-          router.push("/dashboard");
-        } else {
-          setError("AUTHENTICATION FAILED: INVALID OPERATOR CREDENTIALS");
-          setIsLoading(false);
-        }
-      }
-    }, 1200);
+    try {
+      await login(email, password);
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Authentication failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -201,33 +188,15 @@ export default function LandingLoginPage() {
             <p className="text-muted-foreground mt-2 text-sm">Please log in to manage gates and check activity logs.</p>
           </div>
 
-          {/* Sliding segmented switch between Security and Admin */}
-          <div className="p-1 bg-secondary border border-border/60 rounded-2xl flex relative overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setRole("Security")}
-              className={`flex-1 py-3 text-sm font-black transition-colors rounded-xl relative z-10 ${role === "Security" ? "text-white" : "text-muted-foreground"}`}
-            >
-              Security Portal
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("Admin")}
-              className={`flex-1 py-3 text-sm font-black transition-colors rounded-xl relative z-10 ${role === "Admin" ? "text-white" : "text-muted-foreground"}`}
-            >
-              Admin Control
-            </button>
+          <GoogleSignInButton />
 
-            {/* Sliding backdrop indicator */}
-            <motion.div
-              layoutId="roleIndicator"
-              className="absolute top-1 bottom-1 left-1 right-1 bg-indigo-600 rounded-xl"
-              style={{
-                width: "calc(50% - 4px)",
-                left: role === "Security" ? "4px" : "calc(50% + 2px)"
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            />
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card/30 px-2 text-muted-foreground font-mono">or email</span>
+            </div>
           </div>
 
           {/* Credentials Form */}
@@ -245,22 +214,17 @@ export default function LandingLoginPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-mono font-bold text-muted-foreground uppercase tracking-widest block">
-                {role === "Security" ? "Security Guard Operator ID" : "Administrator ID"}
+                Email
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-muted-foreground/60">
-                  <Terminal className="w-5 h-5" />
-                </span>
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-background border-2 border-border/50 rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:border-indigo-500 font-mono text-sm transition-colors"
-                  placeholder="Enter ID..."
-                  disabled={isLoading}
-                />
-              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-background border-2 border-border/50 rounded-2xl px-4 py-3.5 outline-none focus:border-indigo-500 font-mono text-sm transition-colors"
+                placeholder="admin@smartgate.local"
+                disabled={isLoading}
+              />
             </div>
 
             <div className="space-y-2">
@@ -305,6 +269,13 @@ export default function LandingLoginPage() {
               )}
             </button>
           </form>
+
+          <p className="text-center text-sm text-muted-foreground">
+            New operator?{" "}
+            <Link href="/register" className="text-indigo-500 font-bold hover:underline">
+              Create account
+            </Link>
+          </p>
         </div>
 
         {/* Security watermark footer */}

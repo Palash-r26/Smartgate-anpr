@@ -8,28 +8,30 @@ import {
   LayoutDashboard, Car, FileText, LogOut, Sun, Moon, Shield, 
   ChevronLeft, ChevronRight 
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useSocket } from "@/components/SocketProvider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const [role, setRole] = useState("");
+  const { user, isLoading, logout } = useAuth();
+  const { isConnected } = useSocket();
   const [mounted, setMounted] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const r = localStorage.getItem("smartgate_role");
-    if (!r) router.push("/");
-    setRole(r || "");
-  }, [router]);
+    if (!isLoading && !user) router.push("/");
+  }, [isLoading, user, router]);
 
-  if (!mounted) return null;
+  if (!mounted || isLoading || !user) return null;
 
+  const role = user.role;
   const links = [
     { name: "Live Monitor", href: "/dashboard", icon: LayoutDashboard },
     { name: "Audit Logs", href: "/dashboard/logs", icon: FileText },
-    ...(role === "Admin" ? [{ name: "Preloaded Vehicles", href: "/dashboard/vehicles", icon: Car }] : []),
+    ...(role === "ADMIN" ? [{ name: "Preloaded Vehicles", href: "/dashboard/vehicles", icon: Car }] : []),
   ];
 
   return (
@@ -107,7 +109,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Sign Out Button */}
           <button 
             onClick={() => { 
-              localStorage.removeItem("smartgate_role"); 
+              logout();
               router.push("/"); 
             }} 
             className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl hover:bg-rose-500/10 text-rose-500 transition-all font-bold ${
@@ -130,9 +132,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {links.find(l => l.href === pathname)?.name || "Dashboard"}
           </h2>
           <div className="flex items-center gap-4">
-            <div className="px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-bold text-indigo-500 flex items-center gap-2 font-mono uppercase tracking-wider">
-              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              {role} Portal
+            <div className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 font-mono uppercase tracking-wider border ${
+              isConnected
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                : "bg-rose-500/10 border-rose-500/20 text-rose-500"
+            }`}>
+              <div className={`w-2 h-2 rounded-full animate-pulse ${isConnected ? "bg-emerald-500" : "bg-rose-500"}`} />
+              {isConnected ? "Live" : "Offline"}
+            </div>
+            <div className="px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-bold text-indigo-500 font-mono uppercase tracking-wider">
+              {role}
             </div>
           </div>
         </header>

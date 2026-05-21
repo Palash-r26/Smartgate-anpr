@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const plateRoutes = require('./routes/plate');
+const authRoutes = require('./routes/auth');
 const { initSocket } = require('./socket/events');
 const pool = require('./db/connection');
 
@@ -26,6 +27,7 @@ initSocket(io);
 const dashboardRoutes = require('./routes/dashboard');
 
 app.use('/api/plate', plateRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/health', async (req, res) => {
